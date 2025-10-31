@@ -1,156 +1,70 @@
-# 🧠 NeuroExpert платформа
+# Getting Started with Create React App
 
-> Умные digital-решения с AI-интеграцией для роста бизнеса
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## 🚀 Технологии
+## Available Scripts
 
-- **Frontend**: React 19 + TypeScript + Tailwind CSS
-- **Backend**: FastAPI Python + MongoDB Atlas
-- **AI**: Claude Sonnet + GPT-4o для умного чата
-- **Hosting**: Vercel (serverless)
-- **Video**: Cloudinary оптимизация
-- **Analytics**: Яндекс.Метрика
+In the project directory, you can run:
 
-## 🎯 Возможности
+### `npm start`
 
-### Для посетителей:
-- ✨ Современный landing с видео фоном
-- 🤖 AI-консультант с памятью диалога
-- 📱 Адаптивный дизайн для всех устройств
-- 🎨 Командная страница с 3D эффектами
-- 📊 Детальные модальные окна услуг
-- 🔔 Система уведомлений
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-### Для администраторов:
-- 📡 Telegram уведомления о заявках
-- 📈 Yandex.Metrika с отслеживанием конверсий
-- 🗄️ MongoDB для хранения заявок и чатов
-- ⚙️ Гибкая конфигурационная система услуг
-- 🔄 Умная обработка нерелевантных вопросов
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-## 📦 Развертывание
+### `npm test`
 
-📖 **[Инструкция по развертыванию](DEPLOY.md)**
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-```bash
-# Быстрое развертывание
-npm install -g vercel
-vercel login
-cp .env.example .env
-# Заполните .env реальными значениями
-vercel --prod
-```
+### `npm run build`
 
-## 🔧 Структура проекта
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-```
-├── api/                 # Vercel serverless functions
-│   ├── index.py        # FastAPI entry point
-│   └── requirements.txt # Python dependencies
-├── frontend/           # React приложение
-│   ├── src/
-│   ├── public/
-│   └── package.json
-├── backend/            # Исходный код бэкенда
-│   ├── config/         # Конфигурация услуг
-│   ├── memory/         # Умная память чата
-│   └── utils/          # Вспомогательные функции
-├── tests/              # Тесты
-└── vercel.json         # Конфигурация развертывания
-```
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-## 🧪 Тестирование
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-```bash
-# Локальный запуск бэкенда
-cd frontend/api && python -m uvicorn index:app --reload --port 8000
+### `npm run eject`
 
-# Локальный запуск фронтенда
-cd frontend && npm start
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-# Ручной smoke-тест API (health + корневой)
-cd scripts && ./test_health.sh
-```
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-## ⚙️ Переменные окружения
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-Скопируйте `.env.example` и заполните:
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-```bash
-# MongoDB (Required)
-MONGO_URL=mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority
-DB_NAME=neuroexpert_db
+## Learn More
 
-# AI интеграция (Required для AI-чата)
-EMERGENT_LLM_KEY=your_emergent_llm_api_key
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-# Telegram (Optional, для уведомлений о заявках)
-TELEGRAM_BOT_TOKEN=your_bot_token
-TELEGRAM_CHAT_ID=your_chat_id
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-# Frontend (Optional)
-REACT_APP_BACKEND_URL=        # Пусто для production, http://localhost:8000 для dev
-CLIENT_ORIGIN_URL=http://localhost:3000
+### Code Splitting
 
-# Logging (Optional)
-LOG_LEVEL=INFO
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-# Vercel автоматически установит VERCEL_ENV и другие переменные
-```
+### Analyzing the Bundle Size
 
-**Важно для запуска AI-чата:**
-- `MONGO_URL` и `DB_NAME` — обязательны для хранения сообщений
-- `EMERGENT_LLM_KEY` — обязателен для работы Claude/GPT-4o чата
-- `CLIENT_ORIGIN_URL` — должен совпадать с доменом фронтенда для CORS
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-## 📊 Особенности реализации
+### Making a Progressive Web App
 
-### 🧠 AI-ассистент
-- Конфигурационная система услуг
-- Классификатор релевантности вопросов
-- Умная память с подсчетом токенов
-- Fallback-ответы для нерелевантных вопросов
-- Session ID для персистентности диалога (localStorage)
-- Retry-механизм с экспоненциальным backoff
-- Timeout protection (30 сек)
-- Graceful error handling с пользовательскими сообщениями
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### 🎨 Frontend
-- Video фон с Cloudinary оптимизацией
-- 3D эффекты командной страницы
-- Анимированные градиенты для медленных соединений
-- Yandex.Metrika отслеживание конверсий
-- Toast-уведомления для ошибок
+### Advanced Configuration
 
-### ⚡ Backend
-- Serverless архитектура в Vercel
-- MongoDB асинхронные операции
-- Telegram уведомления о заявках
-- CORS защита для продакшена
-- Health check endpoint (/api/health)
-- Structured JSON logging
-- Request ID tracking
-- Connection pooling для MongoDB
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-## 🎉 Успешно внедрены
+### Deployment
 
-- ✅ AI-ассистент с памятью до 3000 токенов
-- ✅ Обработка 15+ типов нерелевантных вопросов
-- ✅ Video фон 1280x720 с автоматической оптимизацией
-- ✅ Конфигурационная система услуг без кода
-- ✅ Yandex.Metrika с отслеживанием лидов
-- ✅ Полностековый deployment на Vercel
-- ✅ Health check и мониторинг API
-- ✅ Retry logic с экспоненциальным backoff
-- ✅ Улучшенная обработка ошибок
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-## 📚 Документация
+### `npm run build` fails to minify
 
-- [Развертывание на Vercel](DEPLOY.md)
-- [AI Chat Health Check & Troubleshooting](AI_CHAT_HEALTH.md)
-- [DevOps и мониторинг](DEVOPS.md)
-
-
----
-
-**NeuroExpert.ru** — твой AI-партнер в digital-трансформации 🚀
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
