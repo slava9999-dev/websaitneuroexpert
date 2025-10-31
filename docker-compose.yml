@@ -1,44 +1,43 @@
 version: '3.8'
 
 services:
-  # Frontend React приложение
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
+    image: node:20
+    working_dir: /app
+    command: bash -c "npm install && npm run start"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
     environment:
       - NODE_ENV=development
-      - REACT_APP_API_URL=http://localhost:8000
-    command: yarn start
+      - REACT_APP_BACKEND_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
     networks:
       - neuroexpert-network
 
-  # Backend FastAPI приложение
   backend:
-    build:
-      context: ./api
-      dockerfile: Dockerfile.dev
-    ports:
-      - "8000:8000"
+    image: python:3.11
+    working_dir: /workspace
+    command: bash -c "pip install --no-cache-dir -r backend/requirements.txt && uvicorn api.index:app --host 0.0.0.0 --port 8000 --reload"
     volumes:
-      - ./api:/app
+      - ./:/workspace
     environment:
       - PYTHONUNBUFFERED=1
-      - MONGODB_URL=${MONGODB_URL}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-    command: uvicorn index:app --host 0.0.0.0 --port 8000 --reload
-    networks:
-      - neuroexpert-network
+      - MONGO_URL=${MONGO_URL:-mongodb://mongodb:27017/neuroexpert_db}
+      - DB_NAME=${DB_NAME:-neuroexpert_db}
+      - EMERGENT_LLM_KEY=${EMERGENT_LLM_KEY:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - CLIENT_ORIGIN_URL=${CLIENT_ORIGIN_URL:-http://localhost:3000}
+    ports:
+      - "8000:8000"
     depends_on:
       - mongodb
+    networks:
+      - neuroexpert-network
 
-  # MongoDB база данных (локальная для разработки)
   mongodb:
     image: mongo:7.0
     ports:
