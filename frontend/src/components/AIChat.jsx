@@ -25,6 +25,19 @@ const AIChat = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [sessionId, setSessionId] = useState('');
 
+  // Secure session ID generator
+  function generateSessionId() {
+    // Generate 16 bytes (128 bits) and encode as base36 for compactness
+    const array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+    // Convert byte array to a base36 string
+    let str = '';
+    for (let i = 0; i < array.length; i++) {
+      str += array[i].toString(36).padStart(2, '0');
+    }
+    return `session_${Date.now()}_${str.substr(0, 24)}`;
+  }
+
   // Initialize session ID
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -32,13 +45,13 @@ const AIChat = () => {
     try {
       let storedSessionId = window.localStorage.getItem('neuroexpert_session_id');
       if (!storedSessionId) {
-        storedSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        storedSessionId = generateSessionId();
         window.localStorage.setItem('neuroexpert_session_id', storedSessionId);
       }
       setSessionId(storedSessionId);
     } catch (error) {
       console.warn('Unable to access localStorage for session tracking:', error);
-      setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+      setSessionId(generateSessionId());
     }
   }, []);
 
