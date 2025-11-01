@@ -8,7 +8,11 @@
       "config": { "distDir": "build" }
     },
     {
-      "src": "frontend/api/*.js",
+      "src": "frontend/api/**/*.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/api/**/*.js",
       "use": "@vercel/node"
     }
   ],
