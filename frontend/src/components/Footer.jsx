@@ -88,10 +88,10 @@ const Footer = () => {
             © 2025 NeuroExpert. Made with <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-[#7dd3fc]" /> and AI
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 text-xs sm:text-sm text-white/60 text-center">
-            <a href="#" className="hover:text-[#7dd3fc] transition-colors">
+            <a href="/privacy" className="hover:text-[#7dd3fc] transition-colors">
               Политика конфиденциальности
             </a>
-            <a href="#" className="hover:text-[#7dd3fc] transition-colors">
+            <a href="/terms" className="hover:text-[#7dd3fc] transition-colors">
               Условия использования
             </a>
           </div>

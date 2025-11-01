@@ -31,7 +31,7 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
+        <a href="/" className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
           <motion.div
             whileHover={{ rotate: 360, scale: 1.1 }}
             transition={{ duration: 0.6 }}
