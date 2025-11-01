@@ -6,7 +6,7 @@
 
 - **Frontend**: React 19 + TypeScript + Tailwind CSS
 - **Backend**: FastAPI Python + MongoDB Atlas
-- **AI**: Claude Sonnet + GPT-4o для умного чата
+- **AI**: Google Gemini для умного чата
 - **Hosting**: Vercel (serverless)
 - **Video**: Cloudinary оптимизация
 - **Analytics**: Яндекс.Метрика
