@@ -17,6 +17,7 @@ const VideoBackground = ({ onVideoLoad }) => {
   const [isIntersecting, setIsIntersecting] = useState(false);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [eagerPreload, setEagerPreload] = useState(false);
 
   const videoRef = useRef(null);
   const containerRef = useRef(null);
@@ -38,6 +39,8 @@ const VideoBackground = ({ onVideoLoad }) => {
   // Check video load conditions (network, battery)
   const checkVideoLoadConditions = useCallback(async () => {
     const networkCondition = videoUtils.getNetworkCondition();
+    // Eager preload for fast networks
+    setEagerPreload(networkCondition === 'fast' || networkCondition === 'unknown');
     if (networkCondition === 'data-saver' || networkCondition === 'slow') {
       return false;
     }
@@ -228,7 +231,7 @@ const VideoBackground = ({ onVideoLoad }) => {
         loop
         muted
         playsInline
-        preload="metadata"
+        preload={eagerPreload ? 'auto' : 'metadata'}
         crossOrigin="anonymous"
         poster="/video-poster.svg"
         onLoadedData={handleVideoLoad}

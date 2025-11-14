@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || '').trim();
 const API_BASE_URL = BACKEND_URL.endsWith('/') ? BACKEND_URL.slice(0, -1) : BACKEND_URL;
-const API_ENDPOINT = `${API_BASE_URL}/api/chat`.replace(/^\/api\/chat$/g, '/api/chat');
+const API_ENDPOINT = `${API_BASE_URL}/api/gemini`.replace(/^\/api\/gemini$/g, '/api/gemini');
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000;
 
@@ -66,9 +66,7 @@ const AIChat = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          session_id: sessionId,
-          message: message,
-          model: 'claude-sonnet',
+          prompt: message,
         }),
         signal: controller.signal,
       });
@@ -81,7 +79,12 @@ const AIChat = () => {
       }
 
       const data = await response.json();
-      return data.response || 'Ошибка: не удалось получить ответ.';
+      const text =
+        (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text)
+        || data.output_text
+        || (typeof data === 'string' ? data : '')
+        || 'Ошибка: не удалось получить ответ.';
+      return text;
       
     } catch (error) {
       console.error(`AI API error (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, error);
