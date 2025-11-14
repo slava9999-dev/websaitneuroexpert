@@ -27,7 +27,7 @@ const AIChat = () => {
 
   // Initialize session ID
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || process.env.NODE_ENV === 'production' && typeof window.localStorage === 'undefined') return;
 
     try {
       let storedSessionId = window.localStorage.getItem('neuroexpert_session_id');
