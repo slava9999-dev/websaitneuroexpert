@@ -10,11 +10,16 @@
     {
       "src": "frontend/api/chat.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/api/contact.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     { "src": "/favicon.ico", "dest": "/favicon.png" },
     { "src": "/api/gemini", "dest": "/frontend/api/chat.js" },
+    { "src": "/api/contact", "dest": "/frontend/api/contact.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
