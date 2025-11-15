@@ -1,10 +1,6 @@
 {
   "name": "websaitneuroexpert",
   "version": 2,
-  "buildCommand": "npm run build",
-  "buildEnv": {
-    "NODE_OPTIONS": "--max-old-space-size=4096"
-  },
   "builds": [
     {
       "src": "frontend/package.json",
