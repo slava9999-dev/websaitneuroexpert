@@ -27,19 +27,9 @@ const AIChat = () => {
 
   // Initialize session ID
   useEffect(() => {
-    if (typeof window === 'undefined' || process.env.NODE_ENV === 'production' && typeof window.localStorage === 'undefined') return;
-
-    try {
-      let storedSessionId = window.localStorage.getItem('neuroexpert_session_id');
-      if (!storedSessionId) {
-        storedSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        window.localStorage.setItem('neuroexpert_session_id', storedSessionId);
-      }
-      setSessionId(storedSessionId);
-    } catch (error) {
-      console.warn('Unable to access localStorage for session tracking:', error);
-      setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
-    }
+    // Temporarily disabled localStorage to fix build issue
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    setSessionId(sessionId);
   }, []);
 
   useEffect(() => {

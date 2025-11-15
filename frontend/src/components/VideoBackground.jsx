@@ -71,34 +71,30 @@ const VideoBackground = ({ onVideoLoad }) => {
 
   // IntersectionObserver: observe wrapper to ensure reliable attachment
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-      observerRef.current = null;
-    }
+    const container = containerRef.current;
+    if (!container) return;
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        const entry = entries[0];
-        setIsIntersecting(entry.isIntersecting);
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsIntersecting(true);
+          }
+        });
       },
-      {
-        threshold: 0.1,
-        rootMargin: '50px'
-      }
+      { threshold: 0.1 }
     );
 
-    observerRef.current.observe(containerRef.current);
+    observerRef.current.observe(container);
 
     return () => {
-      if (observerRef.current && containerRef.current) {
-        observerRef.current.unobserve(containerRef.current);
+      if (observerRef.current && container) {
+        observerRef.current.unobserve(container);
         observerRef.current.disconnect();
         observerRef.current = null;
       }
     };
-  }, [containerRef.current]); // rerun when ref attaches
+  }, []);
 
   // Play attempt with retry and AbortError handling
   useEffect(() => {
