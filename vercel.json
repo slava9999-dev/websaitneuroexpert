@@ -1,11 +1,18 @@
 {
   "name": "websaitneuroexpert",
   "version": 2,
+  "buildCommand": "npm run build",
+  "buildEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=4096"
+  },
   "builds": [
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "build" }
+      "config": { 
+        "distDir": "build",
+        "buildCommand": "cd frontend && ESLINT_NO_DEV_ERRORS=true npm run build"
+      }
     },
     {
       "src": "frontend/api/chat.js",

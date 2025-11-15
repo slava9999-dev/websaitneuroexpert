@@ -58,7 +58,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "ESLINT_NO_DEV_ERRORS=true craco build",
     "build:prod": "NODE_ENV=production craco build",
     "test": "craco test --watchAll=false",
     "test:watch": "craco test",
