@@ -1,12 +1,6 @@
 {
   "name": "websaitneuroexpert",
   "version": 2,
-  "analytics": {
-    "enable": true
-  },
-  "speedInsights": {
-    "enable": true
-  },
   "builds": [
     {
       "src": "frontend/package.json",
