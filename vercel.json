@@ -1,29 +1,8 @@
 {
-  "name": "websaitneuroexpert",
   "version": 2,
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": { 
-        "distDir": "build",
-        "buildCommand": "cd frontend && ESLINT_NO_DEV_ERRORS=true npm run build"
-      }
-    },
-    {
-      "src": "frontend/api/chat.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "frontend/api/contact.js",
-      "use": "@vercel/node"
-    }
-  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/build",
   "routes": [
-    { "src": "/favicon.ico", "dest": "/favicon.ico" },
-    { "src": "/favicon.png", "dest": "/favicon.png" },
-    { "src": "/api/gemini", "dest": "/frontend/api/chat.js" },
-    { "src": "/api/contact", "dest": "/frontend/api/contact.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]

@@ -27,6 +27,7 @@
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.6",
     "framer-motion": "^11.12.0",
     "lucide-react": "^0.462.0",
@@ -61,8 +62,8 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "ESLINT_NO_DEV_ERRORS=true craco build",
-    "build:prod": "NODE_ENV=production craco build",
+    "build": "craco build",
+    "build:prod": "cross-env NODE_ENV=production craco build",
     "test": "craco test --watchAll=false",
     "test:watch": "craco test",
     "test:coverage": "craco test --coverage --watchAll=false",
