@@ -12,6 +12,7 @@ import AIChat from "./components/AIChat";
 import Footer from "./components/Footer";
 import StickyCTA from "./components/StickyCTA";
 import VideoBackground from "./components/VideoBackground";
+import Analytics from "./components/Analytics";
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
       </div>
       
       <AIChat />
+      <Analytics />
     </div>
   );
 }

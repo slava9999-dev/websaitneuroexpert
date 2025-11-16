@@ -4,6 +4,11 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(200).end();
 
+  // Validate API key
+  if (!process.env.GOOGLE_API_KEY) {
+    return res.status(500).json({ error: "Google API key not configured" });
+  }
+
   try {
     // v1beta поддерживает эти модели:
     // gemini-1.5-flash  |  gemini-1.5-pro
@@ -27,18 +32,14 @@ export default async function handler(req, res) {
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.error("Gemini API error:", data);
-      return res
-        .status(response.status)
-        .json({ error: "Ошибка API Gemini", details: data });
+      throw new Error(`Google API error: ${response.status}`);
     }
 
-    res.status(200).json(data);
-  } catch (err) {
-    console.error("Server error:", err);
-    res.status(500).json({ error: "Ошибка на сервере", details: err.message });
+    const data = await response.json();
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("AI API error:", error);
+    return res.status(500).json({ error: "Failed to get AI response" });
   }
 }
