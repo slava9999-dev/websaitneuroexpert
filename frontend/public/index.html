@@ -39,9 +39,57 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <!-- Favicon -->
         <link rel="icon" href="/video-poster.svg" type="image/svg+xml" />
+
+        <!-- Yandex.Metrika counter -->
+        <script type="text/javascript">
+            (function(m,e,t,r,i,k,a){
+                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                m[i].l=1*new Date();
+                for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+            })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=105459977', 'ym');
+
+            ym(105459977, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true});
+        </script>
+        <!-- /Yandex.Metrika counter -->
+
+        <!-- JSON-LD Structured Data -->
+        <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "NeuroExpert",
+              "url": "https://neuroexpert.ru",
+              "logo": "https://neuroexpert.ru/favicon.png",
+              "sameAs": [
+                "https://t.me/neuroexpert",
+                "https://github.com/neuroexpert",
+                "https://linkedin.com/company/neuroexpert"
+              ],
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "areaServed": "RU",
+                "availableLanguage": ["Russian", "English"]
+              },
+              "makesOffer": {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "AI-ассистенты, цифровой аудит, сайты под ключ",
+                  "description": "NeuroExpert автоматизирует бизнес с помощью ИИ, создаёт сайты под ключ и обеспечивает техподдержку 24/7"
+                }
+              }
+            }
+        </script>
     </head>
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
+        <noscript>
+            <div>
+                <img src="https://mc.yandex.ru/watch/105459977" style="position:absolute; left:-9999px;" alt="" />
+            </div>
+        </noscript>
         <div id="root"></div>
     </body>
 </html>

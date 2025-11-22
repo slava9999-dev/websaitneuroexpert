@@ -2,26 +2,16 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { videoUtils } from '../utils/videoUtils';
 
 /**
- * Видео фон с ленивой загрузкой, retry при автоплей-блокировке и устойчивой обработкой ошибок.
- *
- * Основные изменения:
- * - Наблюдаем wrapper (containerRef), чтобы IntersectionObserver всегда мог прикрепиться.
- * - Разделяем autoplayBlocked и videoError. Не переводим в videoError при блокировке автоплея.
- * - Обрабатываем AbortError / "removed from document" и делаем повторные попытки.
- * - Повторяем попытку play при первом клике/touchstart и при visibilitychange.
+ * Упрощенный видео фон с надежной работой
  */
 const VideoBackground = ({ onVideoLoad }) => {
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [videoError, setVideoError] = useState(false); // реальная ошибка загрузки
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false); // автоплей заблокирован
-  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [eagerPreload, setEagerPreload] = useState(false);
 
   const videoRef = useRef(null);
   const containerRef = useRef(null);
-  const observerRef = useRef(null);
 
   // Detect mobile device
   useEffect(() => {
@@ -36,182 +26,59 @@ const VideoBackground = ({ onVideoLoad }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Check video load conditions (network, battery)
-  const checkVideoLoadConditions = useCallback(async () => {
-    const networkCondition = videoUtils.getNetworkCondition();
-    // Eager preload for fast networks
-    setEagerPreload(networkCondition === 'fast' || networkCondition === 'unknown');
-    if (networkCondition === 'data-saver' || networkCondition === 'slow') {
-      return false;
-    }
-
-    if (typeof navigator !== 'undefined' && 'getBattery' in navigator) {
-      try {
-        const battery = await navigator.getBattery();
-        if (battery.level < 0.2 && !battery.charging) {
-          return false;
-        }
-      } catch (error) {
-        console.warn('Battery API not available:', error);
-      }
-    }
-
-    return true;
-  }, []);
-
+  // Check video load conditions
   useEffect(() => {
     let mounted = true;
     const checkConditions = async () => {
-      const shouldLoad = await checkVideoLoadConditions();
-      if (mounted) setShouldLoadVideo(shouldLoad);
+      try {
+        const shouldLoad = await videoUtils.checkVideoLoadConditions();
+        if (mounted) setShouldLoadVideo(shouldLoad);
+      } catch (error) {
+        console.warn('Error checking video conditions:', error);
+        if (mounted) setShouldLoadVideo(true); // Default to loading
+      }
     };
     checkConditions();
     return () => { mounted = false; };
-  }, [checkVideoLoadConditions]);
-
-  // IntersectionObserver: observe wrapper to ensure reliable attachment
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsIntersecting(true);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    observerRef.current.observe(container);
-
-    return () => {
-      if (observerRef.current && container) {
-        observerRef.current.unobserve(container);
-        observerRef.current.disconnect();
-        observerRef.current = null;
-      }
-    };
   }, []);
 
-  // Play attempt with retry and AbortError handling
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !isIntersecting || !shouldLoadVideo || videoError) return;
-
-    let cancelled = false;
-    let retries = 0;
-    const maxRetries = 5;
-
-    const attemptPlay = async () => {
-      if (cancelled) return;
-      try {
-        if (video.readyState === 0) {
-          video.load();
-        }
-        await video.play();
-        setAutoplayBlocked(false);
-      } catch (error) {
-        console.warn('Play failed:', error);
-
-        const name = error && error.name;
-        const msg = error && error.message ? error.message : '';
-
-        const isAbort = name === 'AbortError' || msg.includes('removed from the document');
-        const isNotAllowed = name === 'NotAllowedError' || msg.toLowerCase().includes('play() was prevented') || msg.toLowerCase().includes('not allowed');
-
-        // If element was temporarily removed (AbortError), retry shortly if still in DOM
-        if (isAbort && retries < maxRetries && document.contains(video)) {
-          retries += 1;
-          setTimeout(attemptPlay, 200 + retries * 150);
-          return;
-        }
-
-        // If autoplay was blocked by browser policy, mark and wait for user interaction or visibility
-        if (isNotAllowed || isAbort) {
-          console.info('Autoplay likely blocked; will retry on user interaction or visibility change.');
-          setAutoplayBlocked(true);
-          return;
-        }
-
-        // For network/CORS/other fatal errors, treat as real error
-        setVideoError(true);
-        console.error('Video loading error (fatal):', error);
-      }
-    };
-
-    const timer = setTimeout(attemptPlay, 100);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [isIntersecting, shouldLoadVideo, videoError]);
-
-  // Retry play on visibility change or first user interaction (to recover from autoplay block)
-  useEffect(() => {
-    if (!autoplayBlocked) return;
-
-    const tryPlay = async () => {
-      const v = videoRef.current;
-      if (!v) return;
-      try {
-        await v.play();
-        setAutoplayBlocked(false);
-      } catch (err) {
-        console.debug('Retry play failed:', err);
-      }
-    };
-
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        tryPlay();
-      }
-    };
-
-    const onUserInteract = () => {
-      tryPlay();
-    };
-
-    document.addEventListener('visibilitychange', onVisibility);
-    document.addEventListener('click', onUserInteract, { once: true, passive: true });
-    document.addEventListener('touchstart', onUserInteract, { once: true, passive: true });
-
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      document.removeEventListener('click', onUserInteract);
-      document.removeEventListener('touchstart', onUserInteract);
-    };
-  }, [autoplayBlocked]);
-
-  // Handle video load / error / stall events
+  // Video event handlers
   const handleVideoLoad = useCallback(() => {
+    console.log('Video loaded successfully');
     setVideoLoaded(true);
     setVideoError(false);
-    setAutoplayBlocked(false);
     if (onVideoLoad) onVideoLoad();
   }, [onVideoLoad]);
 
-  const handleVideoError = useCallback((e) => {
-    console.error('Video loading error (onError):', e);
+  const handleVideoError = useCallback((error) => {
+    console.error('Video error:', error);
     setVideoError(true);
+    setVideoLoaded(false);
   }, []);
 
-  const handleVideoStalled = useCallback(() => {
-    console.warn('Video playback stalled');
-    setTimeout(() => {
-      if (videoRef.current && videoRef.current.readyState < 2) {
-        setVideoError(true);
+  // Try to play video when loaded
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !videoLoaded) return;
+
+    const playVideo = async () => {
+      try {
+        await video.play();
+        console.log('Video playing successfully');
+      } catch (error) {
+        console.warn('Autoplay failed:', error);
+        // This is normal for many browsers - video will play on user interaction
       }
-    }, 3000);
-  }, []);
+    };
 
-  // Fallback rendering when we shouldn't load video or a real error occurred
+    playVideo();
+  }, [videoLoaded]);
+
+  // Fallback rendering
   const renderFallback = () => (
     <div ref={containerRef} className="absolute inset-0 w-full h-full overflow-hidden bg-[#0b0f17]">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0f17] via-[#0b0f17]/60 to-[#0b0f17]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0b0f17]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b0f17]/30 to-[#0b0f17]/80" />
     </div>
   );
 
@@ -227,16 +94,19 @@ const VideoBackground = ({ onVideoLoad }) => {
         loop
         muted
         playsInline
-        preload={eagerPreload ? 'auto' : 'metadata'}
+        preload="metadata"
         crossOrigin="anonymous"
         poster="/video-poster.svg"
         onLoadedData={handleVideoLoad}
         onError={handleVideoError}
-        onStalled={handleVideoStalled}
-        onSuspend={handleVideoStalled}
-        onAbort={handleVideoError}
-        style={{ transform: 'scale(1.05)', objectPosition: 'center center' }}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-80' : 'opacity-0'}`}
+        style={{
+          transform: 'scale(1.05)',
+          objectPosition: 'center center',
+          objectFit: 'cover',
+        }}
+        className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
+          videoLoaded ? 'opacity-80' : 'opacity-0'
+        }`}
       >
         {videoUtils.getOptimalVideoSource(isMobile).map((source, index) => (
           <source key={index} src={source.src} type={source.type} />
@@ -244,11 +114,13 @@ const VideoBackground = ({ onVideoLoad }) => {
         Your browser does not support the video tag.
       </video>
 
+      {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b0f17]/70 via-[#0b0f17]/50 to-[#0b0f17]/70" />
 
-      {!videoLoaded && autoplayBlocked && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          {/* можно разместить статичный элемент/иконку, но pointer-events-none чтобы не требовать клика */}
+      {/* Loading indicator */}
+      {!videoLoaded && !videoError && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
         </div>
       )}
     </div>

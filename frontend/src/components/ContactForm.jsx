@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { toast } from 'sonner';
 import { Send } from 'lucide-react';
 import axios from 'axios';
+import { trackGoal } from '../utils/metrika';
 
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || '').trim();
 const API = BACKEND_URL ? `${BACKEND_URL.replace(/\/$/, '')}/api` : '/api';
@@ -36,14 +37,15 @@ const ContactForm = () => {
         toast.success(response.data.message || 'Спасибо! Мы свяжемся с вами в течение 15 минут');
         setFormData({ name: '', contact: '', service: '', message: '' });
         
-        // Yandex.Metrika goal
-        if (typeof window.ym === 'function') {
-          window.ym(104770996, 'reachGoal', 'FORM_SUBMIT_SUCCESS');
-        }
+        trackGoal('FORM_SUBMIT_SUCCESS', {
+          service: formData.service,
+          contact: !!formData.contact,
+        });
       }
     } catch (error) {
       console.error('Form submission error:', error);
       toast.error('Ошибка. Попробуйте ещё раз');
+      trackGoal('FORM_SUBMIT_ERROR');
     } finally {
       setLoading(false);
     }
@@ -184,6 +186,7 @@ const ContactForm = () => {
               href="https://t.me/neuroexpert" 
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackGoal('SOCIAL_CLICK', { network: 'telegram' })}
               whileHover={{ scale: 1.1, y: -2 }}
               className="text-white/60 hover:text-[#7dd3fc] transition-colors"
             >
@@ -195,6 +198,7 @@ const ContactForm = () => {
               href="https://github.com/neuroexpert" 
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackGoal('SOCIAL_CLICK', { network: 'github' })}
               whileHover={{ scale: 1.1, y: -2 }}
               className="text-white/60 hover:text-[#7dd3fc] transition-colors"
             >
@@ -206,6 +210,7 @@ const ContactForm = () => {
               href="https://linkedin.com/company/neuroexpert" 
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackGoal('SOCIAL_CLICK', { network: 'linkedin' })}
               whileHover={{ scale: 1.1, y: -2 }}
               className="text-white/60 hover:text-[#7dd3fc] transition-colors"
             >

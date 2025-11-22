@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send } from 'lucide-react';
 import { Input } from './ui/input';
 import { toast } from 'sonner';
+import { trackGoal } from '../utils/metrika';
 
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || '').trim();
 const API_BASE_URL = BACKEND_URL.endsWith('/') ? BACKEND_URL.slice(0, -1) : BACKEND_URL;
 const API_ENDPOINT = `${API_BASE_URL}/api/gemini`.replace(/^\/api\/gemini$/g, '/api/gemini');
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000;
+const IS_TEST_ENV = process.env.NODE_ENV === 'test';
 
 const AIChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +87,7 @@ const AIChat = () => {
       }
       
       // Retry with exponential backoff
-      if (retryCount < MAX_RETRIES) {
+      if (!IS_TEST_ENV && retryCount < MAX_RETRIES) {
         const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
         console.log(`Retrying in ${delay}ms...`);
         await sleep(delay);
@@ -99,9 +101,10 @@ const AIChat = () => {
 
   const handleQuickAction = async (prompt) => {
     if (loading || !sessionId) return;
-    
+
     setMessages((prev) => [...prev, { role: 'user', content: prompt }]);
     setLoading(true);
+    trackGoal('AI_CHAT_QUICK_ACTION', { prompt });
     
     try {
       const aiResponse = await callAI(prompt);
@@ -121,11 +124,12 @@ const AIChat = () => {
 
   const handleSend = async () => {
     if (!input.trim() || loading || !sessionId) return;
-    
+
     const userMessage = input;
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
     setLoading(true);
+    trackGoal('AI_CHAT_MESSAGE_SENT');
     
     try {
       const aiResponse = await callAI(userMessage);
@@ -148,7 +152,11 @@ const AIChat = () => {
       {/* Floating button */}
       <motion.div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
         <motion.button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            const nextState = !isOpen;
+            setIsOpen(nextState);
+            trackGoal(nextState ? 'AI_CHAT_OPEN' : 'AI_CHAT_CLOSE');
+          }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           className="w-16 h-16 rounded-full bg-gradient-to-br from-[#7dd3fc] to-[#764ba2] shadow-lg flex items-center justify-center text-3xl"
@@ -265,6 +273,7 @@ const AIChat = () => {
                 onClick={handleSend}
                 whileTap={{ scale: 0.95 }}
                 disabled={!input.trim() || loading || !sessionId}
+                aria-label="Отправить сообщение"
                 className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#7dd3fc] to-[#764ba2] text-white font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={16} />

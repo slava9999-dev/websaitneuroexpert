@@ -1,19 +1,27 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+// Mock video utils (must be declared before component import)
+const mockCheckConditions = jest.fn().mockResolvedValue(true);
+const mockGetSources = jest.fn().mockReturnValue([
+  { src: '/background.webm', type: 'video/webm' }
+]);
+
+jest.mock('../../utils/videoUtils', () => ({
+  videoUtils: {
+    checkVideoLoadConditions: (...args) => mockCheckConditions(...args),
+    getOptimalVideoSource: (...args) => mockGetSources(...args),
+  }
+}));
+
 import VideoBackground from '../VideoBackground';
 
 // Mock IntersectionObserver
-global.IntersectionObserver = jest.fn().mockImplementation((callback) => ({
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}));
-
-// Mock video utils
-jest.mock('../../utils/videoUtils', () => ({
-  checkVideoLoadConditions: jest.fn().mockResolvedValue(true),
-  getOptimalVideoSource: jest.fn().mockReturnValue('/background.webm')
 }));
 
 describe('VideoBackground Component', () => {

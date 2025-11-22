@@ -14,29 +14,50 @@ jest.mock('sonner', () => ({
   }
 }));
 
+// Mock scrollIntoView for jsdom
+beforeAll(() => {
+  if (!window.HTMLElement.prototype.scrollIntoView) {
+    window.HTMLElement.prototype.scrollIntoView = jest.fn();
+  }
+});
+
+const renderAndOpenChat = () => {
+  render(<AIChat />);
+  fireEvent.click(screen.getByRole('button', { name: /💬/i }));
+};
+
+const waitForChatReady = async () => {
+  await waitFor(() => {
+    expect(screen.getByPlaceholderText(/Напишите сообщение/i)).not.toBeDisabled();
+  });
+};
+
 describe('AIChat Component', () => {
   beforeEach(() => {
     fetch.mockClear();
   });
 
-  test('renders AI chat component', () => {
-    render(<AIChat />);
+  test('renders AI chat component', async () => {
+    renderAndOpenChat();
+    await waitForChatReady();
     
-    expect(screen.getByText(/AI консультант/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Задайте вопрос/i)).toBeInTheDocument();
-    expect(screen.getByRole('button')).toBeInTheDocument();
+    await screen.findByText(/AI.?консультант/i);
+    expect(screen.getByPlaceholderText(/Напишите сообщение/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Отправить сообщение/i })).toBeInTheDocument();
   });
 
   test('displays initial message', () => {
     render(<AIChat />);
+    fireEvent.click(screen.getByRole('button', { name: /💬/i }));
     
     expect(screen.getByText(/Привет! Я AI‑консультант NeuroExpert/i)).toBeInTheDocument();
   });
 
-  test('handles user input', () => {
-    render(<AIChat />);
+  test('handles user input', async () => {
+    renderAndOpenChat();
+    await waitForChatReady();
     
-    const input = screen.getByPlaceholderText(/Задайте вопрос/i);
+    const input = screen.getByPlaceholderText(/Напишите сообщение/i);
     fireEvent.change(input, { target: { value: 'Тестовый вопрос' } });
     
     expect(input.value).toBe('Тестовый вопрос');
@@ -54,10 +75,11 @@ describe('AIChat Component', () => {
       })
     });
 
-    render(<AIChat />);
+    renderAndOpenChat();
+    await waitForChatReady();
     
-    const input = screen.getByPlaceholderText(/Задайте вопрос/i);
-    const button = screen.getByRole('button');
+    const input = screen.getByPlaceholderText(/Напишите сообщение/i);
+    const button = screen.getByRole('button', { name: /Отправить сообщение/i });
     
     fireEvent.change(input, { target: { value: 'Тестовый вопрос' } });
     fireEvent.click(button);
@@ -77,16 +99,15 @@ describe('AIChat Component', () => {
   test('handles API error gracefully', async () => {
     fetch.mockRejectedValueOnce(new Error('API Error'));
 
-    render(<AIChat />);
+    renderAndOpenChat();
+    await waitForChatReady();
     
-    const input = screen.getByPlaceholderText(/Задайте вопрос/i);
-    const button = screen.getByRole('button');
+    const input = screen.getByPlaceholderText(/Напишите сообщение/i);
+    const button = screen.getByRole('button', { name: /Отправить сообщение/i });
     
     fireEvent.change(input, { target: { value: 'Тестовый вопрос' } });
     fireEvent.click(button);
     
-    await waitFor(() => {
-      expect(screen.getByText(/Извините, произошла ошибка/i)).toBeInTheDocument();
-    });
+    await screen.findByText(/Извините, возникла ошибка\. Пожалуйста, попробуйте снова или напишите нам напрямую\./i);
   });
 });

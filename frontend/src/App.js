@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import { Toaster } from "./components/ui/sonner";
 import Header from "./components/Header";
@@ -13,8 +13,26 @@ import Footer from "./components/Footer";
 import StickyCTA from "./components/StickyCTA";
 import VideoBackground from "./components/VideoBackground";
 import Analytics from "./components/Analytics";
+import { sendHit } from "./utils/metrika";
 
 function App() {
+  useEffect(() => {
+    const sendPageHit = () => {
+      if (typeof window === "undefined") return;
+      const { pathname, search, hash } = window.location;
+      sendHit(`${pathname}${search}${hash}`);
+    };
+
+    sendPageHit();
+    window.addEventListener("hashchange", sendPageHit);
+    window.addEventListener("popstate", sendPageHit);
+
+    return () => {
+      window.removeEventListener("hashchange", sendPageHit);
+      window.removeEventListener("popstate", sendPageHit);
+    };
+  }, []);
+
   return (
     <div className="App bg-[#0b0f17] min-h-screen relative">
       <Toaster position="top-center" />

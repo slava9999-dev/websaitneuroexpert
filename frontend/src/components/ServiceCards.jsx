@@ -5,6 +5,7 @@ import { X, Send } from 'lucide-react';
 import { Input } from './ui/input';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { trackGoal } from '../utils/metrika';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -394,7 +395,10 @@ const ServiceCards = () => {
                     
                     {/* Neon Button */}
                     <motion.button
-                      onClick={() => setSelectedService(service)}
+                      onClick={() => {
+                        trackGoal('CTA_SERVICE_CARD', { serviceId: service.id, serviceTitle: service.title });
+                        setSelectedService(service);
+                      }}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       className="relative w-full px-6 py-3 bg-gradient-to-r from-[#7dd3fc] to-[#764ba2] text-white font-semibold rounded-xl overflow-hidden group/btn"

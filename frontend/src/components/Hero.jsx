@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { trackGoal } from '../utils/metrika';
 
 const Hero = () => {
   // ref удалён, т.к. не нужен
@@ -32,6 +33,7 @@ const Hero = () => {
           
           <motion.a
             href="#services"
+            onClick={() => trackGoal('CTA_HERO_SERVICES')}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.5 }}

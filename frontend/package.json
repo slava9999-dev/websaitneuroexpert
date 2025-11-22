@@ -45,8 +45,8 @@
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
@@ -62,8 +62,8 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
-    "build:prod": "cross-env NODE_ENV=production craco build",
+    "build": "cross-env NODE_OPTIONS=--require=./scripts/mockLocalStorage.js craco build",
+    "build:prod": "cross-env NODE_ENV=production NODE_OPTIONS=--require=./scripts/mockLocalStorage.js craco build",
     "test": "craco test --watchAll=false",
     "test:watch": "craco test",
     "test:coverage": "craco test --coverage --watchAll=false",
