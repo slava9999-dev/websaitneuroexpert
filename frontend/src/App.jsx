@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import { Toaster } from "./components/ui/sonner";
 import Header from "./components/Header";

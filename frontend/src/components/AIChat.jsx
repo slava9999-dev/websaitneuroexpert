@@ -1,16 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send } from 'lucide-react';
 import { Input } from './ui/input';
 import { toast } from 'sonner';
 import { trackGoal } from '../utils/metrika';
+import { useSessionStorage } from '../hooks/useSessionStorage';
+import apiClient from '../services/api';
 
-const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || '').trim();
-const API_BASE_URL = BACKEND_URL.endsWith('/') ? BACKEND_URL.slice(0, -1) : BACKEND_URL;
-const API_ENDPOINT = `${API_BASE_URL}/api/gemini`.replace(/^\/api\/gemini$/g, '/api/gemini');
 const MAX_RETRIES = 3;
-const INITIAL_RETRY_DELAY = 1000;
-const IS_TEST_ENV = process.env.NODE_ENV === 'test';
+
 
 const AIChat = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,14 +23,17 @@ const AIChat = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [sessionId, setSessionId] = useState('');
 
-  // Initialize session ID
+  // Initialize session ID with persistent storage
+  const [sessionId, setSessionId] = useSessionStorage('neuroexpert_chat_session_id', '');
+  
   useEffect(() => {
-    // Temporarily disabled localStorage to fix build issue
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    setSessionId(sessionId);
-  }, []);
+    // Generate session ID if not exists
+    if (!sessionId) {
+      const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setSessionId(newSessionId);
+    }
+  }, [sessionId, setSessionId]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -45,56 +46,19 @@ const AIChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 
   const callAI = async (message, retryCount = 0) => {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
-      const response = await fetch(API_ENDPOINT, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          prompt: message,
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const text =
-        (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text)
-        || data.output_text
-        || (typeof data === 'string' ? data : '')
-        || 'Ошибка: не удалось получить ответ.';
-      return text;
+      // Use centralized API client
+      const response = await apiClient.sendMessage(message, sessionId, 'claude-sonnet');
+      return response.response;
       
     } catch (error) {
       console.error(`AI API error (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, error);
       
-      // Don't retry on abort (timeout)
-      if (error.name === 'AbortError') {
-        throw new Error('Превышено время ожидания ответа. Попробуйте позже.');
-      }
-      
-      // Retry with exponential backoff
-      if (!IS_TEST_ENV && retryCount < MAX_RETRIES) {
-        const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
-        console.log(`Retrying in ${delay}ms...`);
-        await sleep(delay);
-        return callAI(message, retryCount + 1);
-      }
-      
-      // All retries failed
+      // Retry logic is now handled in the API client
+      // Just re-throw the error for the UI to handle
       throw error;
     }
   };

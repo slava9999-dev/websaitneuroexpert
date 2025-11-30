@@ -87,7 +87,7 @@ const VideoBackground = ({ onVideoLoad }) => {
   }
 
   return (
-    <div ref={containerRef} className="absolute inset-0 w-full h-full overflow-hidden bg-[#0b0f17]">
+    <div ref={containerRef} className="fixed inset-0 w-full h-full overflow-hidden bg-[#0b0f17] z-0">
       <video
         ref={videoRef}
         autoPlay

@@ -5,11 +5,8 @@ import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { toast } from 'sonner';
 import { Send } from 'lucide-react';
-import axios from 'axios';
+import apiClient from '../services/api';
 import { trackGoal } from '../utils/metrika';
-
-const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || '').trim();
-const API = BACKEND_URL ? `${BACKEND_URL.replace(/\/$/, '')}/api` : '/api';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -31,10 +28,10 @@ const ContactForm = () => {
     setLoading(true);
     
     try {
-      const response = await axios.post(`${API}/contact`, formData);
+      const response = await apiClient.submitContact(formData);
       
-      if (response.data.success) {
-        toast.success(response.data.message || 'Спасибо! Мы свяжемся с вами в течение 15 минут');
+      if (response.success) {
+        toast.success(response.message || 'Спасибо! Мы свяжемся с вами в течение 15 минут');
         setFormData({ name: '', contact: '', service: '', message: '' });
         
         trackGoal('FORM_SUBMIT_SUCCESS', {
@@ -44,7 +41,7 @@ const ContactForm = () => {
       }
     } catch (error) {
       console.error('Form submission error:', error);
-      toast.error('Ошибка. Попробуйте ещё раз');
+      // Error handling is now centralized in apiClient
       trackGoal('FORM_SUBMIT_ERROR');
     } finally {
       setLoading(false);
