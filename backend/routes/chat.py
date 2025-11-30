@@ -19,7 +19,7 @@ router = APIRouter(prefix="/api", tags=["chat"])
 class ChatRequest(BaseModel):
     session_id: str
     message: str
-    model: str = "claude-sonnet"
+    model: str = "gpt-4o"
 
 
 class ChatResponse(BaseModel):
@@ -93,9 +93,10 @@ async def chat(request: ChatRequest, http_request: Request):
         # Generate AI response
         ai_response = None
         try:
-            client = get_ai_client(request.model)
-            ai_response = await client.generate(messages, request.model)
-            logger.info(f"Generated response using {request.model}")
+            # Force GPT-4o usage
+            client = get_ai_client("gpt-4o")
+            ai_response = await client.generate(messages, "gpt-4o")
+            logger.info(f"Generated response using gpt-4o")
         except AIClientError as e:
             logger.error(f"AI generation failed: {e}")
             ai_response = get_fallback_response(request.message)
@@ -114,7 +115,7 @@ async def chat(request: ChatRequest, http_request: Request):
         response = ChatResponse(
             response=ai_response,
             session_id=request.session_id,
-            model=request.model,
+            model="gpt-4o",
             timestamp=start_time.isoformat()
         )
         
@@ -137,7 +138,7 @@ async def chat_health():
         
         # Check AI clients configuration
         ai_status = {}
-        for model in ["claude-sonnet", "gpt-4o", "gemini-1.5-flash"]:
+        for model in ["gpt-4o"]:
             try:
                 client = get_ai_client(model)
                 ai_status[model] = "configured"
