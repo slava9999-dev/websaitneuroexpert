@@ -55,13 +55,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Speed up video start: Cloudinary and local video -->
     <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
-    <link
-      rel="preload"
-      as="video"
-      href="/background.webm"
-      type="video/webm"
-      crossorigin="anonymous"
-    />
+    <!-- Removed invalid preload -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -137,6 +131,8 @@
       }
     </script>
   </head>
+  <body>
+    <div id="root"></div>
     <script type="module" src="./src/main.jsx"></script>
   </body>
 </html>
