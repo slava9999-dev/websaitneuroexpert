@@ -76,7 +76,7 @@ const VideoBackground = ({ onVideoLoad }) => {
 
   // Fallback rendering
   const renderFallback = () => (
-    <div ref={containerRef} className="absolute inset-0 w-full h-full overflow-hidden bg-[#0b0f17]">
+    <div ref={containerRef} className="fixed inset-0 w-full h-full overflow-hidden bg-[#0b0f17] z-0">
       <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0b0f17]" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0b0f17]/30 to-[#0b0f17]/80" />
     </div>
