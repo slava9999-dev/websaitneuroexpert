@@ -100,7 +100,9 @@ const Portfolio = () => {
 
                   {/* Content */}
                   <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-[#7dd3fc] transition-colors">
+                    <h3 className={`text-2xl font-bold text-white mb-2 group-hover:text-[#7dd3fc] transition-colors ${
+                      project.id === 2 ? 'md:text-3xl md:animated-gradient-text md:font-extrabold' : ''
+                    }`}>
                       {project.title}
                     </h3>
                     <p className="text-[#7dd3fc] font-medium text-sm mb-4">
