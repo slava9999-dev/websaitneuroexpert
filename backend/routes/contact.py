@@ -55,13 +55,16 @@ async def contact_form(request: ContactRequest):
         if not all([request.name, request.contact, request.service]):
             raise HTTPException(status_code=400, detail="Missing required fields")
         
-        # Save to database
-        db_success = await db_manager.save_contact_form(
-            request.name, request.contact, request.service, request.message
-        )
-        
-        if not db_success:
-            logger.warning("Failed to save contact form to database")
+        # Save to database (optional)
+        try:
+            db_success = await db_manager.save_contact_form(
+                request.name, request.contact, request.service, request.message
+            )
+            if not db_success:
+                logger.warning("Failed to save contact form to database")
+        except Exception as e:
+            logger.error(f"Database save error: {e}")
+            # Continue execution to send Telegram notification
         
         # Send Telegram notification
         telegram_success = False
@@ -95,7 +98,8 @@ async def contact_form(request: ContactRequest):
         raise
     except Exception as e:
         logger.error(f"Contact form error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        # Return error detail for debugging
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.get("/contact/health")
