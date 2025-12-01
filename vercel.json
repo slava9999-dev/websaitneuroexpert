@@ -9,8 +9,8 @@
       "destination": "/frontend/build/assets/:path*"
     },
     {
-      "source": "/:file(.*\\.(ico|png|svg|txt|xml|webmanifest|webm|mp4))",
-      "destination": "/frontend/build/:file"
+      "source": "/([^/]+\\.(?:ico|png|svg|txt|xml|webmanifest|webm|mp4))",
+      "destination": "/frontend/build/$1"
     },
     {
       "source": "/:path((?!api).*)",
