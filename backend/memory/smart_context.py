@@ -18,7 +18,11 @@ class SmartContext:
         """Initialize with MongoDB client."""
         self.db = db_client[settings.db_name]
         self.chat_collection = self.db.chat_messages
-        self.encoding = get_encoding("cl100k_base")  # GPT-4 tokenizer, works for most models
+        try:
+            self.encoding = get_encoding("cl100k_base")
+        except Exception as e:
+            logger.warning(f"Failed to load tiktoken encoding: {e}. Using fallback counting.")
+            self.encoding = None
 
     async def save_message(self, session_id: str, user_message: str, ai_response: str) -> bool:
         """Save a conversation turn to MongoDB."""
@@ -71,7 +75,9 @@ class SmartContext:
     def _count_tokens(self, text: str) -> int:
         """Count tokens in text using tiktoken."""
         try:
-            return len(self.encoding.encode(text))
+            if self.encoding:
+                return len(self.encoding.encode(text))
+            return len(text) // 4
         except Exception:
             # Fallback: rough estimation (1 token ≈ 4 chars)
             return len(text) // 4

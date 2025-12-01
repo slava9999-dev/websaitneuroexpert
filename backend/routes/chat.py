@@ -126,7 +126,8 @@ async def chat(request: ChatRequest, http_request: Request):
         raise
     except Exception as e:
         logger.error(f"Chat endpoint error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        # Return error detail for debugging (remove in production if needed)
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.get("/chat/health")
