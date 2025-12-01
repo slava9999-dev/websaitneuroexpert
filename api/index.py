@@ -1,14 +1,27 @@
-"""Vercel serverless function entry point."""
-import sys
-import os
+"""Vercel serverless function - minimal test."""
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-# Add parent directory to path to import backend
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
+app = FastAPI()
 
-# Import the FastAPI app
-from backend.main import app
+# Allow all CORS for testing
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Vercel expects 'app' to be exported
-# No need for handler wrapper with modern Vercel
+@app.get("/api/health")
+async def health():
+    return {"status": "ok", "message": "Minimal FastAPI is working on Vercel"}
+
+@app.post("/api/contact")
+async def contact():
+    return {"success": True, "message": "Contact endpoint is alive"}
+
+@app.post("/api/chat")
+async def chat():
+    return {"response": "Chat endpoint is alive", "session_id": "test"}
+
