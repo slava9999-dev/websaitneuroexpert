@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Any
 from motor.motor_asyncio import AsyncIOMotorClient
-from tiktoken import get_encoding
+# tiktoken import moved to inside class to prevent import errors
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,8 @@ class SmartContext:
             self.db = None
             self.chat_collection = None
         try:
-            self.encoding = get_encoding("cl100k_base")
+            import tiktoken
+            self.encoding = tiktoken.get_encoding("cl100k_base")
         except Exception as e:
             logger.warning(f"Failed to load tiktoken encoding: {e}. Using fallback counting.")
             self.encoding = None
