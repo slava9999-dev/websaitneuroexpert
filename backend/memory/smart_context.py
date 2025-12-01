@@ -14,10 +14,14 @@ logger = logging.getLogger(__name__)
 class SmartContext:
     """Manages conversation context with token counting and MongoDB storage."""
 
-    def __init__(self, db_client: AsyncIOMotorClient):
+    def __init__(self, db_client: Optional[AsyncIOMotorClient]):
         """Initialize with MongoDB client."""
-        self.db = db_client[settings.db_name]
-        self.chat_collection = self.db.chat_messages
+        if db_client:
+            self.db = db_client[settings.db_name]
+            self.chat_collection = self.db.chat_messages
+        else:
+            self.db = None
+            self.chat_collection = None
         try:
             self.encoding = get_encoding("cl100k_base")
         except Exception as e:
@@ -26,6 +30,9 @@ class SmartContext:
 
     async def save_message(self, session_id: str, user_message: str, ai_response: str) -> bool:
         """Save a conversation turn to MongoDB."""
+        if not self.chat_collection:
+            return False
+            
         try:
             document = {
                 "session_id": session_id,
@@ -44,6 +51,9 @@ class SmartContext:
 
     async def get_context(self, session_id: str) -> List[Dict[str, str]]:
         """Load conversation history, respecting token limits."""
+        if not self.chat_collection:
+            return []
+            
         try:
             # Get recent messages in descending order
             cursor = self.chat_collection.find(

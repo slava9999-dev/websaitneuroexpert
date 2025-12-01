@@ -63,8 +63,10 @@ async def chat(request: ChatRequest, http_request: Request):
             raise HTTPException(status_code=503, detail="Context service unavailable")
         
         # Load conversation history
+        history = []
         try:
-            history = await smart_context.get_context(request.session_id)
+            if db_manager.db:
+                history = await smart_context.get_context(request.session_id)
         except Exception as e:
             logger.error(f"Failed to load context: {e}")
             history = []
