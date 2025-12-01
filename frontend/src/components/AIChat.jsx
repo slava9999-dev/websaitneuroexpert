@@ -123,6 +123,7 @@ const AIChat = () => {
           }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          data-ai-chat-button="true"
           className="w-16 h-16 rounded-full bg-gradient-to-br from-[#7dd3fc] to-[#764ba2] shadow-lg flex items-center justify-center text-3xl"
         >
           💬
