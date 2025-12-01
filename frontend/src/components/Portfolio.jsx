@@ -5,7 +5,7 @@ import { ExternalLink, ArrowUpRight } from 'lucide-react';
 
 const Portfolio = () => {
   return (
-    <section id="portfolio" className="relative py-12 sm:py-16 md:py-24 px-4 sm:px-6 overflow-hidden bg-[#0b0f17]">
+    <section id="portfolio" className="relative py-12 sm:py-16 md:py-24 px-4 sm:px-6 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#7dd3fc]/5 rounded-full blur-3xl" />
@@ -76,7 +76,7 @@ const Portfolio = () => {
               {/* Card Background & Glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#7dd3fc]/0 via-[#764ba2]/0 to-[#7dd3fc]/0 group-hover:from-[#7dd3fc]/10 group-hover:via-[#764ba2]/10 group-hover:to-[#7dd3fc]/10 rounded-3xl transition-all duration-500 blur-xl" />
               
-              <div className="relative flex flex-col h-full bg-[#121826] border border-white/10 rounded-3xl overflow-hidden group-hover:border-[#7dd3fc]/30 transition-all duration-300 shadow-lg group-hover:shadow-[#7dd3fc]/20">
+              <div className="relative flex flex-col h-full bg-[#121826]/80 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden group-hover:border-[#7dd3fc]/30 transition-all duration-300 shadow-lg group-hover:shadow-[#7dd3fc]/20">
                 {/* Top Gradient Line */}
                 <div className={`h-2 w-full bg-gradient-to-r ${project.gradient}`} />
 
