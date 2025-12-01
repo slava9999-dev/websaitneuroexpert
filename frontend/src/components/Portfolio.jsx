@@ -105,6 +105,18 @@ const Portfolio = () => {
                     }`}>
                       {project.title}
                     </h3>
+                    
+                    {/* Desktop Only Warning for NeuroExpert */}
+                    {project.id === 2 && (
+                      <div className="mb-3 py-2 px-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200 text-xs flex items-start gap-2">
+                        <span className="text-base mt-0.5">🖥️</span>
+                        <span>
+                          <span className="font-bold block mb-0.5">Desktop Version Only</span>
+                          Платформа содержит сложные дашборды и не адаптирована для мобильных устройств.
+                        </span>
+                      </div>
+                    )}
+
                     <p className="text-[#7dd3fc] font-medium text-sm mb-4">
                       {project.company}
                     </p>
