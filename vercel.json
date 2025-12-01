@@ -1,43 +1,31 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "backend/main.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    }
-  ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/backend/main.py"
+      "source": "/api/:path*",
+      "destination": "/api/index.py"
     },
     {
-      "source": "/assets/(.*)",
-      "destination": "/frontend/assets/$1"
+      "source": "/assets/:path*",
+      "destination": "/frontend/build/assets/:path*"
     },
     {
-      "source": "/([^/]+\\.(?:ico|png|svg|txt|xml|webmanifest|webm|mp4))",
-      "destination": "/frontend/$1"
+      "source": "/:file(.*\\.(ico|png|svg|txt|xml|webmanifest|webm|mp4))",
+      "destination": "/frontend/build/:file"
     },
     {
-      "source": "/((?!api/|assets/|.*\\..*).*)",
-      "destination": "/frontend/index.html"
+      "source": "/:path((?!api).*)",
+      "destination": "/frontend/build/index.html"
     }
   ],
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/build",
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://mc.yandex.com https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://mc.yandex.ru https://mc.yandex.com https://customer-assets.emergentagent.com; font-src 'self' https://fonts.gstatic.com; media-src 'self' https://res.cloudinary.com https://commondatastorage.googleapis.com; connect-src 'self' https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.com wss://mc.yandex.ru https://fonts.googleapis.com https://fonts.gstatic.com https://res.cloudinary.com https://commondatastorage.googleapis.com https://www.googleapis.com https://generativelanguage.googleapis.com https://vercel.live; frame-ancestors 'none';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://mc.yandex.com https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://mc.yandex.ru https://mc.yandex.com https://customer-assets.emergentagent.com; font-src 'self' https://fonts.gstatic.com; media-src 'self' https://res.cloudinary.com https://commondatastorage.googleapis.com; connect-src 'self' https://mc.yandex.ru https://mc.yandex.com wss://mc.yandex.com wss://mc.yandex.ru https://fonts.googleapis.com https://fonts.gstatic.com https://res.cloudinary.com https://commondatastorage.googleapis.com https://www.googleapis.com https://generativelanguage.googleapis.com https://vercel.live; frame-src https://vercel.live; frame-ancestors 'none';"
         },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
