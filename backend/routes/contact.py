@@ -47,7 +47,10 @@ class ContactResponse(BaseModel):
 
 @router.post("/contact", response_model=ContactResponse)
 async def contact_form(request: ContactRequest):
-    """Handle contact form submissions with database storage and Telegram notifications."""
+    """Handle contact form submissions with database storage and Telegram notifications.
+    
+    Rate limit: 5 requests per minute per IP address.
+    """
     timestamp = datetime.utcnow()
     
     try:

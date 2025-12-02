@@ -90,6 +90,37 @@ class DatabaseManager:
                 "connection": "failed"
             }
 
+    async def create_indexes(self):
+        """Create database indexes for performance optimization."""
+        if not self.db:
+            logger.warning("Database not connected, skipping index creation")
+            return
+        
+        try:
+            # Chat messages collection indexes
+            await self.db.chat_messages.create_index([
+                ("session_id", 1),
+                ("timestamp", -1)
+            ], name="session_timestamp_idx")
+            
+            await self.db.chat_messages.create_index([
+                ("timestamp", -1)
+            ], name="timestamp_idx")
+            
+            # Contact forms collection indexes
+            await self.db.contact_forms.create_index([
+                ("timestamp", -1)
+            ], name="contact_timestamp_idx")
+            
+            await self.db.contact_forms.create_index([
+                ("status", 1),
+                ("timestamp", -1)
+            ], name="status_timestamp_idx")
+            
+            logger.info("Database indexes created successfully")
+        except Exception as e:
+            logger.error(f"Failed to create indexes: {e}")
+
 
 # Global database instance
 db_manager = DatabaseManager()

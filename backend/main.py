@@ -7,6 +7,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from config.settings import settings
 from utils.database import db_manager
@@ -19,6 +25,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Initialize Sentry for error monitoring
+if settings.sentry_dsn and settings.environment == "production":
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        integrations=[
+            FastApiIntegration(),
+            LoggingIntegration(
+                level=logging.INFO,
+                event_level=logging.ERROR
+            ),
+        ],
+        traces_sample_rate=1.0,
+        environment=settings.environment,
+        release="neuroexpert@3.0.0",
+    )
+    logger.info("Sentry initialized for error monitoring")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,6 +53,9 @@ async def lifespan(app: FastAPI):
     db_connected = await db_manager.connect()
     if not db_connected:
         logger.error("Failed to connect to database")
+    else:
+        # Create indexes for performance
+        await db_manager.create_indexes()
     
     logger.info("Backend startup complete")
     
@@ -49,6 +75,11 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # Configure CORS
 allowed_origins = []
 if settings.environment == "development":
@@ -64,13 +95,19 @@ else:
     # In production, use configured origin
     if settings.client_origin_url:
         allowed_origins = [settings.client_origin_url]
+    # Add production domains
+    allowed_origins.extend([
+        "https://neuroexpert.ru",
+        "https://www.neuroexpert.ru",
+        "https://neuroexpert.vercel.app"
+    ])
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,  # Только конкретные домены
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],  # Только необходимые методы
+    allow_headers=["Content-Type", "Authorization"],  # Только необходимые headers
 )
 
 

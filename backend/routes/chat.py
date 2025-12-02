@@ -47,7 +47,10 @@ def get_fallback_response(message: str) -> str:
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest, http_request: Request):
-    """Handle chat requests with AI integration and context management."""
+    """Handle chat requests with AI integration and context management.
+    
+    Rate limit: 10 requests per minute per IP address.
+    """
     start_time = datetime.utcnow()
     
     try:

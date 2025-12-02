@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { videoUtils } from '../utils/videoUtils';
+import { logger } from '@/utils/logger';
 
 /**
  * Упрощенный видео фон с надежной работой
@@ -34,7 +35,7 @@ const VideoBackground = ({ onVideoLoad }) => {
         const shouldLoad = await videoUtils.checkVideoLoadConditions();
         if (mounted) setShouldLoadVideo(shouldLoad);
       } catch (error) {
-        console.warn('Error checking video conditions:', error);
+        logger.warn('Error checking video conditions:', error);
         if (mounted) setShouldLoadVideo(true); // Default to loading
       }
     };
@@ -44,14 +45,14 @@ const VideoBackground = ({ onVideoLoad }) => {
 
   // Video event handlers
   const handleVideoLoad = useCallback(() => {
-    console.log('Video loaded successfully');
+    logger.debug('Video loaded successfully');
     setVideoLoaded(true);
     setVideoError(false);
     if (onVideoLoad) onVideoLoad();
   }, [onVideoLoad]);
 
   const handleVideoError = useCallback((error) => {
-    console.error('Video error:', error);
+    logger.error('Video error:', error);
     setVideoError(true);
     setVideoLoaded(false);
   }, []);
@@ -64,9 +65,9 @@ const VideoBackground = ({ onVideoLoad }) => {
     const playVideo = async () => {
       try {
         await video.play();
-        console.log('Video playing successfully');
+        logger.debug('Video playing successfully');
       } catch (error) {
-        console.warn('Autoplay failed:', error);
+        logger.warn('Autoplay failed:', error);
         // This is normal for many browsers - video will play on user interaction
       }
     };

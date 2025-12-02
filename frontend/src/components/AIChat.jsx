@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { trackGoal } from '../utils/metrika';
 import { useSessionStorage } from '../hooks/useSessionStorage';
 import apiClient from '../services/api';
+import { logger } from '@/utils/logger';
 
 const MAX_RETRIES = 3;
 
@@ -55,7 +56,7 @@ const AIChat = () => {
       return response.response;
       
     } catch (error) {
-      console.error(`AI API error (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, error);
+      logger.error(`AI API error (attempt ${retryCount + 1}/${MAX_RETRIES + 1}):`, error);
       
       // Retry logic is now handled in the API client
       // Just re-throw the error for the UI to handle
@@ -74,7 +75,7 @@ const AIChat = () => {
       const aiResponse = await callAI(prompt);
       setMessages((prev) => [...prev, { role: 'assistant', content: aiResponse }]);
     } catch (error) {
-      console.error('Quick action error:', error);
+      logger.error('Quick action error:', error);
       const errorMessage = error.message || 'Произошла ошибка, попробуйте ещё раз.';
       toast.error(errorMessage);
       setMessages((prev) => [
@@ -99,7 +100,7 @@ const AIChat = () => {
       const aiResponse = await callAI(userMessage);
       setMessages((prev) => [...prev, { role: 'assistant', content: aiResponse }]);
     } catch (error) {
-      console.error('Send message error:', error);
+      logger.error('Send message error:', error);
       const errorMessage = error.message || 'Ошибка при обращении к серверу';
       toast.error(errorMessage);
       setMessages((prev) => [
@@ -123,6 +124,7 @@ const AIChat = () => {
           }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          data-ai-chat-button="true"
           className="w-16 h-16 rounded-full bg-gradient-to-br from-[#7dd3fc] to-[#764ba2] shadow-lg flex items-center justify-center text-3xl"
         >
           💬

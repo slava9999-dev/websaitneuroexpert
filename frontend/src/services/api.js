@@ -5,6 +5,7 @@
 
 import axios from 'axios';
 import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
 
 class ApiClient {
   constructor() {
@@ -24,11 +25,11 @@ class ApiClient {
     // Request interceptor for logging
     this.client.interceptors.request.use(
       (config) => {
-        console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        logger.api(config.method, config.url);
         return config;
       },
       (error) => {
-        console.error('❌ Request Error:', error);
+        logger.error('Request Error:', error);
         return Promise.reject(error);
       }
     );
@@ -36,7 +37,7 @@ class ApiClient {
     // Response interceptor for error handling
     this.client.interceptors.response.use(
       (response) => {
-        console.log(`✅ API Response: ${response.status} ${response.config.url}`);
+        logger.apiResponse(response.status, response.config.url);
         return response;
       },
       (error) => {
@@ -79,15 +80,15 @@ class ApiClient {
           toast.error(data?.detail || data?.message || 'Произошла ошибка.');
       }
       
-      console.error(`❌ API Error ${status}:`, data);
+      logger.error(`API Error ${status}:`, data);
     } else if (request) {
       // Network error
       toast.error('Проблемы с соединением. Проверьте интернет.');
-      console.error('❌ Network Error:', request);
+      logger.error('Network Error:', request);
     } else {
       // Request configuration error
       toast.error('Ошибка запроса.');
-      console.error('❌ Request Error:', message);
+      logger.error('Request Error:', message);
     }
   }
 
@@ -114,7 +115,7 @@ class ApiClient {
 
         // Exponential backoff
         const delay = baseDelay * Math.pow(2, attempt);
-        console.log(`🔄 Retrying chat request in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
+        logger.debug(`Retrying chat request in ${delay}ms (attempt ${attempt + 1}/${maxRetries + 1})`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }

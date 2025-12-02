@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     telegram_bot_token: Optional[str] = None
     telegram_chat_id: Optional[str] = None
 
+    # Sentry (Optional, for error monitoring)
+    sentry_dsn: Optional[str] = None
+
     # Frontend/CORS
     client_origin_url: str = "http://localhost:3000"
     environment: str = "development"

@@ -1,27 +1,20 @@
-"""Vercel serverless function - minimal test."""
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+"""Vercel serverless function entry point."""
+import sys
+from pathlib import Path
 
-app = FastAPI()
+# Add backend to path
+backend_path = Path(__file__).parent.parent / "backend"
+sys.path.insert(0, str(backend_path))
 
-# Allow all CORS for testing
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Import the main app from backend
+from main import app
 
-@app.get("/api/health")
-async def health():
-    return {"status": "ok", "message": "Minimal FastAPI is working on Vercel"}
-
-@app.post("/api/contact")
-async def contact():
-    return {"success": True, "message": "Contact endpoint is alive"}
-
-@app.post("/api/chat")
-async def chat():
-    return {"response": "Chat endpoint is alive", "session_id": "test"}
+# Vercel will use this app
+# This ensures we're using the full FastAPI application with all features:
+# - Rate limiting
+# - Proper CORS configuration
+# - AI chat with memory
+# - Contact form with Telegram notifications
+# - Health checks
+# - Error handling
 

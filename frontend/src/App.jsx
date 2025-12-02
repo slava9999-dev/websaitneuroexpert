@@ -1,19 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import "./App.css";
 import { Toaster } from "./components/ui/sonner";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import ServiceCards from "./components/ServiceCards";
-import Portfolio from "./components/Portfolio";
 import Advantages from "./components/Advantages";
-import Team from "./components/Team";
-import ContactForm from "./components/ContactForm";
-import AIChat from "./components/AIChat";
 import Footer from "./components/Footer";
 import StickyCTA from "./components/StickyCTA";
 import VideoBackground from "./components/VideoBackground";
 import Analytics from "./components/Analytics";
+import SectionErrorBoundary from "./components/SectionErrorBoundary";
 import { sendHit } from "./utils/metrika";
+
+// Lazy load non-critical components
+const Portfolio = lazy(() => import("./components/Portfolio"));
+const Team = lazy(() => import("./components/Team"));
+const ContactForm = lazy(() => import("./components/ContactForm"));
+const AIChat = lazy(() => import("./components/AIChat"));
 
 function App() {
   useEffect(() => {
@@ -47,32 +50,55 @@ function App() {
         
         <main>
           {/* 1. Hero с видео */}
-          <Hero />
+          <SectionErrorBoundary sectionName="Hero">
+            <Hero />
+          </SectionErrorBoundary>
           
           {/* 2. Карточки услуг с AI консультация */}
-          <ServiceCards />
+          <SectionErrorBoundary sectionName="Услуги">
+            <ServiceCards />
+          </SectionErrorBoundary>
           
-          {/* 3. Портфолио/Кейсы */}
+          {/* 3. Портфолио/Кейсы - Lazy loaded */}
           <section id="portfolio">
-            <Portfolio />
+            <SectionErrorBoundary sectionName="Портфолио">
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full"></div></div>}>
+                <Portfolio />
+              </Suspense>
+            </SectionErrorBoundary>
           </section>
           
           {/* 4. Почему мы */}
-          <Advantages />
+          <SectionErrorBoundary sectionName="Преимущества">
+            <Advantages />
+          </SectionErrorBoundary>
           
-          {/* 5. Кто мы */}
+          {/* 5. Кто мы - Lazy loaded */}
           <section id="team">
-            <Team />
+            <SectionErrorBoundary sectionName="Команда">
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-indigo-500 border-t-transparent rounded-full"></div></div>}>
+                <Team />
+              </Suspense>
+            </SectionErrorBoundary>
           </section>
           
-          {/* 6. Форма обратной связи */}
-          <ContactForm />
+          {/* 6. Форма обратной связи - Lazy loaded */}
+          <SectionErrorBoundary sectionName="Контакты">
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-indigo-500 border-t-transparent rounded-full"></div></div>}>
+              <ContactForm />
+            </Suspense>
+          </SectionErrorBoundary>
         </main>
         
         <Footer />
       </div>
       
-      <AIChat />
+      {/* AI Chat - Lazy loaded */}
+      <SectionErrorBoundary sectionName="AI Chat">
+        <Suspense fallback={null}>
+          <AIChat />
+        </Suspense>
+      </SectionErrorBoundary>
       <Analytics />
     </div>
   );
