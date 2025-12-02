@@ -3,7 +3,7 @@
  * Tracks Core Web Vitals and sends to Sentry/Analytics
  */
 
-import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+import { onCLS, onINP, onFCP, onLCP, onTTFB } from 'web-vitals';
 import * as Sentry from '@sentry/react';
 import { logger } from './logger';
 
@@ -54,27 +54,27 @@ export function initWebVitals() {
   // Largest Contentful Paint (LCP)
   // Measures loading performance
   // Good: < 2.5s, Needs Improvement: 2.5s - 4s, Poor: > 4s
-  getLCP(reportMetric);
+  onLCP(reportMetric);
 
-  // First Input Delay (FID)
-  // Measures interactivity
-  // Good: < 100ms, Needs Improvement: 100ms - 300ms, Poor: > 300ms
-  getFID(reportMetric);
+  // Interaction to Next Paint (INP)
+  // Measures interactivity (replaces FID)
+  // Good: < 200ms, Needs Improvement: 200ms - 500ms, Poor: > 500ms
+  onINP(reportMetric);
 
   // Cumulative Layout Shift (CLS)
   // Measures visual stability
   // Good: < 0.1, Needs Improvement: 0.1 - 0.25, Poor: > 0.25
-  getCLS(reportMetric);
+  onCLS(reportMetric);
 
   // First Contentful Paint (FCP)
   // Measures perceived load speed
   // Good: < 1.8s, Needs Improvement: 1.8s - 3s, Poor: > 3s
-  getFCP(reportMetric);
+  onFCP(reportMetric);
 
   // Time to First Byte (TTFB)
   // Measures server response time
   // Good: < 800ms, Needs Improvement: 800ms - 1800ms, Poor: > 1800ms
-  getTTFB(reportMetric);
+  onTTFB(reportMetric);
 
   logger.log('✅ Web Vitals monitoring initialized');
 }
