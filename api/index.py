@@ -7,9 +7,6 @@ backend_path = Path(__file__).parent.parent / "backend"
 sys.path.insert(0, str(backend_path))
 
 # Import the main app from backend
-from main import app
-
-# Vercel will use this app
 # This ensures we're using the full FastAPI application with all features:
 # - Rate limiting
 # - Proper CORS configuration
@@ -17,4 +14,4 @@ from main import app
 # - Contact form with Telegram notifications
 # - Health checks
 # - Error handling
-
+from main import app
