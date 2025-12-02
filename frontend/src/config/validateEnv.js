@@ -8,7 +8,7 @@
  */
 const REQUIRED_ENV_VARS = {
   production: [
-    'VITE_SENTRY_DSN', // Required for error monitoring in production
+    // No required vars for production (all are optional now)
   ],
   development: [
     // No required vars for development
@@ -23,10 +23,12 @@ const REQUIRED_ENV_VARS = {
  */
 const RECOMMENDED_ENV_VARS = {
   production: [
+    'VITE_SENTRY_DSN', // Recommended for error monitoring in production
     'VITE_BACKEND_URL', // Backend URL (defaults to /api if not set)
   ],
   development: [
     'VITE_BACKEND_URL', // Useful for local development
+    'VITE_SENTRY_DSN', // Optional for testing Sentry integration
   ]
 };
 
