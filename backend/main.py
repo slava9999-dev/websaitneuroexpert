@@ -71,7 +71,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="NeuroExpert API",
     description="AI-powered digital transformation platform backend",
-    version="1.0.0",
+    version="3.0.0",
     lifespan=lifespan
 )
 
@@ -171,7 +171,7 @@ async def health_check():
                 "database": db_health,
                 "api": {"status": "healthy"}
             },
-            "version": "1.0.0"
+            "version": "3.0.0"
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")

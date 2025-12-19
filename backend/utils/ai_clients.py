@@ -169,7 +169,14 @@ class EmergentClient:
 
 
 def get_ai_client(model: str) -> Any:
-    """Factory function to get appropriate AI client."""
+    """Factory function to get appropriate AI client.
+    
+    Supported models:
+    - claude-* -> AnthropicClient
+    - gpt-* (including gpt-4o-mini) -> OpenAIClient  
+    - gemini-* -> GeminiClient
+    - others -> EmergentClient (fallback)
+    """
     if model.startswith("claude"):
         return AnthropicClient()
     elif model.startswith("gpt"):

@@ -6,12 +6,17 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from memory.smart_context import SmartContext
 from utils.ai_clients import get_ai_client, AIClientError
 from utils.database import db_manager
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
+
+# Initialize rate limiter for this router
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
@@ -46,6 +51,7 @@ def get_fallback_response(message: str) -> str:
 
 
 @router.post("/chat", response_model=ChatResponse)
+@limiter.limit("10/minute")
 async def chat(request: ChatRequest, http_request: Request):
     """Handle chat requests with AI integration and context management.
     
@@ -98,10 +104,11 @@ async def chat(request: ChatRequest, http_request: Request):
         # Generate AI response
         ai_response = None
         try:
-            # Force GPT-4o usage
-            client = get_ai_client("gpt-4o")
-            ai_response = await client.generate(messages, "gpt-4o")
-            logger.info(f"Generated response using gpt-4o")
+            # Use GPT-4o-mini for optimal cost/performance balance
+            model = "gpt-4o-mini"
+            client = get_ai_client(model)
+            ai_response = await client.generate(messages, model)
+            logger.info(f"Generated response using {model}")
         except AIClientError as e:
             logger.error(f"AI generation failed: {e}")
             ai_response = get_fallback_response(request.message)
@@ -120,7 +127,7 @@ async def chat(request: ChatRequest, http_request: Request):
         response = ChatResponse(
             response=ai_response,
             session_id=request.session_id,
-            model="gpt-4o",
+            model="gpt-4o-mini",
             timestamp=start_time.isoformat()
         )
         
@@ -144,7 +151,7 @@ async def chat_health():
         
         # Check AI clients configuration
         ai_status = {}
-        for model in ["gpt-4o"]:
+        for model in ["gpt-4o-mini"]:
             try:
                 client = get_ai_client(model)
                 ai_status[model] = "configured"

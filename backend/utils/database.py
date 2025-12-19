@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from datetime import datetime
 from typing import Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from config.settings import settings
@@ -57,7 +58,7 @@ class DatabaseManager:
                 "contact": contact,
                 "service": service,
                 "message": message,
-                "timestamp": asyncio.get_event_loop().time(),
+                "timestamp": datetime.utcnow(),
                 "status": "new"
             }
             await self.db.contact_forms.insert_one(document)

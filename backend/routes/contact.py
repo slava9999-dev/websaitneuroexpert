@@ -1,15 +1,20 @@
-"""Contact form API routes with Telegram integration."""
+"""Contact form API routes."""
 
+import asyncio
 import logging
 from datetime import datetime
-from typing import Dict, Any
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, validator
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from utils.database import db_manager
 from utils.telegram import TelegramNotifier
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
+
+# Initialize rate limiter for this router
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/api", tags=["contact"])
 
@@ -46,7 +51,8 @@ class ContactResponse(BaseModel):
 
 
 @router.post("/contact", response_model=ContactResponse)
-async def contact_form(request: ContactRequest):
+@limiter.limit("5/minute")
+async def contact_form(request: ContactRequest, http_request: Request):
     """Handle contact form submissions with database storage and Telegram notifications.
     
     Rate limit: 5 requests per minute per IP address.
