@@ -52,7 +52,7 @@ def get_fallback_response(message: str) -> str:
 
 @router.post("/chat", response_model=ChatResponse)
 @limiter.limit("10/minute")
-async def chat(request: ChatRequest, http_request: Request):
+async def chat(request: Request, body: ChatRequest):
     """Handle chat requests with AI integration and context management.
     
     Rate limit: 10 requests per minute per IP address.
@@ -61,7 +61,7 @@ async def chat(request: ChatRequest, http_request: Request):
     
     try:
         # Validate session ID
-        if not request.session_id:
+        if not body.session_id:
             raise HTTPException(status_code=400, detail="Session ID is required")
         
         # Initialize context manager
@@ -75,7 +75,7 @@ async def chat(request: ChatRequest, http_request: Request):
         history = []
         try:
             if db_manager.db:
-                history = await smart_context.get_context(request.session_id)
+                history = await smart_context.get_context(body.session_id)
         except Exception as e:
             logger.error(f"Failed to load context: {e}")
             history = []
@@ -99,7 +99,7 @@ async def chat(request: ChatRequest, http_request: Request):
             messages.append({"role": "assistant", "content": turn["assistant"]})
         
         # Add current message
-        messages.append({"role": "user", "content": request.message})
+        messages.append({"role": "user", "content": body.message})
         
         # Generate AI response
         ai_response = None
@@ -111,14 +111,14 @@ async def chat(request: ChatRequest, http_request: Request):
             logger.info(f"Generated response using {model}")
         except AIClientError as e:
             logger.error(f"AI generation failed: {e}")
-            ai_response = get_fallback_response(request.message)
+            ai_response = get_fallback_response(body.message)
         except Exception as e:
             logger.error(f"Unexpected AI error: {e}")
-            ai_response = get_fallback_response(request.message)
+            ai_response = get_fallback_response(body.message)
         
         # Save conversation to database
         try:
-            await smart_context.save_message(request.session_id, request.message, ai_response)
+            await smart_context.save_message(body.session_id, body.message, ai_response)
         except Exception as e:
             logger.error(f"Failed to save conversation: {e}")
             # Continue even if save fails
@@ -126,12 +126,12 @@ async def chat(request: ChatRequest, http_request: Request):
         # Return response
         response = ChatResponse(
             response=ai_response,
-            session_id=request.session_id,
+            session_id=body.session_id,
             model="gpt-4o-mini",
             timestamp=start_time.isoformat()
         )
         
-        logger.info(f"Chat processed for session {request.session_id}")
+        logger.info(f"Chat processed for session {body.session_id}")
         return response
         
     except HTTPException:

@@ -52,7 +52,7 @@ class ContactResponse(BaseModel):
 
 @router.post("/contact", response_model=ContactResponse)
 @limiter.limit("5/minute")
-async def contact_form(request: ContactRequest, http_request: Request):
+async def contact_form(request: Request, body: ContactRequest):
     """Handle contact form submissions with database storage and Telegram notifications.
     
     Rate limit: 5 requests per minute per IP address.
@@ -61,13 +61,13 @@ async def contact_form(request: ContactRequest, http_request: Request):
     
     try:
         # Validate required fields
-        if not all([request.name, request.contact, request.service]):
+        if not all([body.name, body.contact, body.service]):
             raise HTTPException(status_code=400, detail="Missing required fields")
         
         # Save to database (optional)
         try:
             db_success = await db_manager.save_contact_form(
-                request.name, request.contact, request.service, request.message
+                body.name, body.contact, body.service, body.message
             )
             if not db_success:
                 logger.warning("Failed to save contact form to database")
@@ -81,7 +81,7 @@ async def contact_form(request: ContactRequest, http_request: Request):
             try:
                 notifier = TelegramNotifier()
                 telegram_success = await notifier.send_contact_notification(
-                    request.name, request.contact, request.service, request.message
+                    body.name, body.contact, body.service, body.message
                 )
             except Exception as e:
                 logger.error(f"Telegram notification failed: {e}")
@@ -89,7 +89,7 @@ async def contact_form(request: ContactRequest, http_request: Request):
             logger.info("Telegram not configured - skipping notification")
         
         # Log the submission
-        logger.info(f"Contact form submitted: {request.name} - {request.service}")
+        logger.info(f"Contact form submitted: {body.name} - {body.service}")
         
         # Return success response
         response = ContactResponse(
