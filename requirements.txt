@@ -8,3 +8,6 @@ httpx>=0.24.0
 tiktoken>=0.5.0
 dnspython>=2.4.0
 openai>=1.0.0
+slowapi>=0.1.9
+sentry-sdk[fastapi]>=1.40.0
+
